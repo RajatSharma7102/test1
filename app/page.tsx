@@ -1,69 +1,125 @@
-import Image from "next/image";
+"use client";
+import {useState} from 'react'; 
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+  //statemanagement for the calculator
+  const[desposit, setDeposit] = useState<number>(10000);
+  const[rate, setRate] = useState<number>(7);
+  const[time, setTime] = useState<number>(5);
+  const[payout, setPayout] = useState<string>('');
+
+  //formula : M = P+((P*R*T)/100)
+  const interest = (desposit * rate * time) / 100;
+  const maturityAmount = desposit + interest;
+
+  //currency formatter
+  const formatINR = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  
+
+};
+
+ return (
+  <main className="min-h-screen bg-[#f4f4f6] flex items-center justify-center md:p-8 font-sans">
+    <div className="max-w-[1000px] w-full bg-white rounded-2xl flex flex-col md:flex-row overflow-hidden">
+    //left section of the calculator
+    <div className="w-full md:w-[55%] p-8 md:p-10 bg-white">
+      <h2 className="text-2xl font-semibold text-white rounded-2xl flex flex-col md:flex-row overflow-hidden">FD Calculator</h2>
+      <p className="text">Estimate how much your fixed deposit investment will grow over time.</p>
+       
+      //Desposit Ammount slider 
+      <div className="mb-6">
+        <div className="flex justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Deposit Amount(₹)</span>
+          <span>{formatINR(desposit)}</span>
+        </div>
+        <input
+          type="range"
+          min="1000"
+          max="1000000"
+          step="1000"
+          value={desposit}
+          onChange={(e) => setDeposit(Number(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      </div>
+
+      //Rate slider
+      <div className="mb-6">
+        <div className="flex justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Rate of Return(%)</span>
+          <span>{rate}%</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <input
+          type="range"
+          min="1"
+          max="15"
+          step="0.1"
+          value={rate}
+          onChange={(e) => setRate(Number(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      //Time slider
+      <div className="mb-6">
+        <div className="flex justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Time Period (Years)</span>
+          <span>{time}</span>
+        </div>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          step="1"
+          value={time}
+          onChange={(e) => setTime(Number(e.target.value))}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      //Payout section
+      <div>
+        <span className="text-sm font-medium text-gray-700">Interest Payout</span>
+       <div className="mt-2 p-4 bg-gray-100 rounded-lg">
+        {["quaterly", "half-yearly", "yearly", "maturity"].map((option) => (
+          <label key={option} className={`block mb-2 cursor-pointer p-2 rounded-lg ${
+            payout === option
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700"
+            }`}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+            <input
+              type="radio"
+              name="payout"
+              value={option}
+              checked={payout === option}
+              onChange={(e) => setPayout(e.target.value)}
+              className="mr-2"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            {option === "half-yearly" ? "Half-Yearly" : option === "maturity" ? "Maturity" : option.charAt(0).toUpperCase() + option.slice(1)}
+          </label>
+        ))}
+      </div>
     </div>
-  );
+
+    //right section of the calculator
+    <div className="w-full md:w-2/5 p-6 sm:p-10 bg-blue-50 flex felx-col justify-center space-y-8">
+    <div>
+      <h4 classsName="text-sm font-medium text-slate-500 mn-2">Maturity Amount</h4>
+      <h1 className="text-3xl sm:text-4xl font-bold text-blue-600">{formatINR(maturityAmount)}</h1>
+    </div>
+    <div>
+      <h4 classsName="text-sm font-medium text-slate-500 mn-2">Interest Earned</h4>
+      <h1 className="text-3xl sm:text-4xl font-bold text-blue-600">{formatINR(interest)}</h1>
+    </div>
+    </div>
+    </div>
+    </div>
+  </main>
+ );
 }
